@@ -1,31 +1,69 @@
-import { initialPositions } from './constants.js';
+import { initializeBishops } from "./pieces/bishop.js";
+import { initializeKings } from "./pieces/king.js";
+import { initializeKnights } from "./pieces/knight.js";
+import { initializePawns } from "./pieces/pawn.js";
+import { initializeQueens } from "./pieces/queen.js";
+import { initializeRooks } from "./pieces/rook.js";
 
 export class ChessBoard {
   constructor() {
-    this.positions = initialPositions;
-    this.turn = 'w';
+    this.turn = "w";
+    this.blackPieces = { alive: {}, dead: {} };
+    this.whitePieces = { alive: {}, dead: {} };
+    this.initializePositions();
+  }
+
+  initializePositions() {
+    initializePawns.call(this);
+    initializeRooks.call(this);
+    initializeKnights.call(this);
+    initializeBishops.call(this);
+    initializeQueens.call(this);
+    initializeKings.call(this);
   }
 
   getPositions() {
-    return this.positions;
+    const positions = {};
+
+    for (const blackPieceInstance of Object.values(this.blackPieces.alive)) {
+      const blackPiece = blackPieceInstance.getData();
+      const key = `${blackPiece.row}-${blackPiece.col}`;
+      const value = `${blackPiece.color}-${blackPiece.type}`;
+      positions[key] = value;
+    }
+
+    for (const whitePieceInstance of Object.values(this.whitePieces.alive)) {
+      const whitePiece = whitePieceInstance.getData();
+      const key = `${whitePiece.row}-${whitePiece.col}`;
+      const value = `${whitePiece.color}-${whitePiece.type}`;
+      positions[key] = value;
+    }
+
+    return positions;
   }
 
   makeMove(currSquare, newSquare) {
-    this.positions[newSquare] = this.positions[currSquare];
-    this.positions[currSquare] = null;
-    this.turn = this.turn === 'w' ? 'b' : 'w';
+    // Alive pieces
+    const pieces = this.turn === 'w' ? this.whitePieces.alive : this.blackPieces.alive;
+    pieces[newSquare]
+
+
+    // Change turn
+    this.turn = this.turn === "w" ? "b" : "w";
   }
 
   getAvailableMoves(key) {
-    const pieceData = this.positions[key];
+    const positions = this.getPositions();
+    const pieceData = positions[key];
+
     if (!pieceData) return [];
 
-    const [color, piece] = pieceData.split('-');
+    const [color, piece] = pieceData.split("-");
 
     if (color !== this.turn) return [];
 
     switch (piece) {
-      case 'p':
+      case "p":
         return this.getPawnAvailabeMoves(key);
 
       default:
@@ -33,124 +71,53 @@ export class ChessBoard {
     }
   }
 
-  getPotentialPawnMoves(row, col) {
+  getPawnAvailabeMoves(key) {
+    const potentalMoves = this.getPotentialPawnMoves(key);
+
+    return potentalMoves;
+  }
+
+  getPotentialPawnMoves(key) {
+    const positions = this.getPositions();
+    const row = Number(key[0]);
+    const col = Number(key[2]);
+
     const defaultPawnMoves = [
       [
         { r: 1, c: 0 },
-        { r: 2, c: 0 },
+        { r: 2, c: 0, initialOnly: true },
       ],
       [{ r: 1, c: 1, attack: true }],
       [{ r: 1, c: -1, attack: true }],
     ];
 
-    const direction = this.turn === 'w' ? -1 : 1;
+    const direction = this.turn === "w" ? -1 : 1;
     const moves = [];
 
     for (const defaultMoveSeq of defaultPawnMoves) {
       for (const defaultMove of defaultMoveSeq) {
+        if (defaultMove.initialOnly) {
+          if (this.turn === "w") {
+            if (row !== 6) break;
+          } else {
+            if (row !== 1) break;
+          }
+        }
         const newRow = row + direction * defaultMove.r;
         const newCol = col + direction * defaultMove.c;
-        if (newRow < 0 || newRow > 7 || newCol < 0 || newCol > 7) continue;
-        const newSquareKey = newRow + '-' + newCol;
+        if (newRow < 0 || newRow > 7 || newCol < 0 || newCol > 7) break;
+        const newSquareKey = newRow + "-" + newCol;
+        const existingPiece = positions[newSquareKey];
+
+        // not an attack move and thier is existing peice on the square.
+        if (!defaultMove.attack && existingPiece) break;
+
         if (defaultMove.attack) {
-          const existingPiece = this.positions[newSquareKey];
-          if (!existingPiece || existingPiece[0] == this.turn) continue;
+          // attack move and existing piece is of same color.
+          if (!existingPiece || existingPiece[0] == this.turn) break;
         }
+
         moves.push(newSquareKey);
-      }
-    }
-    return moves;
-  }
-
-  getPawnAvailabeMovesDummy(key) {
-    const row = Number(key[0]);
-    const col = Number(key[2]);
-    const potentialPawnMoves = this.getPotentialPawnMoves(row, col);
-    console.log('🚀 ~ ChessBoard ~ getPawnAvailabeMovesDummy ~ potentialPawnMoves:', potentialPawnMoves);
-    const moves = [];
-
-    // if (this.turn === 'w') {
-    //   // initial position (2 moves ahead)
-    //   if (row == 6) {
-    //     const potentialSquare = `${row - 2}-${col}`;
-    //     // if there are no other pieces on that square
-    //     if (!this.positions[potentialSquare]) {
-    //       moves.push(potentialSquare);
-    //     }
-    //   }
-
-    //   // (1 move ahead)
-    //   if (row > 0) {
-    //     const potentialSquare = `${row - 1}-${col}`;
-    //     // if there are no other pieces on that square
-    //     if (!this.positions[potentialSquare]) {
-    //       moves.push(potentialSquare);
-    //     }
-    //   }
-    // } else {
-    //   // initial position (2 moves ahead)
-    //   if (row == 1) {
-    //     const potentialSquare = `${row + 2}-${col}`;
-    //     // if there are no other pieces on that square
-    //     if (!this.positions[potentialSquare]) {
-    //       moves.push(potentialSquare);
-    //     }
-    //   }
-
-    //   // (1 move ahead)
-    //   if (row < 7) {
-    //     const potentialSquare = `${row + 1}-${col}`;
-    //     // if there are no other pieces on that square
-    //     if (!this.positions[potentialSquare]) {
-    //       moves.push(potentialSquare);
-    //     }
-    //   }
-    // }
-
-    // return moves;
-  }
-
-  getPawnAvailabeMoves(key) {
-    const row = Number(key[0]);
-    const col = Number(key[2]);
-    const moves = [];
-    this.getPawnAvailabeMovesDummy(key);
-
-    if (this.turn === 'w') {
-      // initial position (2 moves ahead)
-      if (row == 6) {
-        const potentialSquare = `${row - 2}-${col}`;
-        // if there are no other pieces on that square
-        if (!this.positions[potentialSquare]) {
-          moves.push(potentialSquare);
-        }
-      }
-
-      // (1 move ahead)
-      if (row > 0) {
-        const potentialSquare = `${row - 1}-${col}`;
-        // if there are no other pieces on that square
-        if (!this.positions[potentialSquare]) {
-          moves.push(potentialSquare);
-        }
-      }
-    } else {
-      // initial position (2 moves ahead)
-      if (row == 1) {
-        const potentialSquare = `${row + 2}-${col}`;
-        // if there are no other pieces on that square
-        if (!this.positions[potentialSquare]) {
-          moves.push(potentialSquare);
-        }
-      }
-
-      // (1 move ahead)
-      if (row < 7) {
-        const potentialSquare = `${row + 1}-${col}`;
-        // if there are no other pieces on that square
-        if (!this.positions[potentialSquare]) {
-          moves.push(potentialSquare);
-        }
       }
     }
 
