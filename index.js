@@ -7,7 +7,8 @@ const port = 8080;
 
 app.use(cors());
 app.use(json());
-let game = new ChessBoard();
+
+export let game = new ChessBoard();
 
 app.get("/positions", (req, res) => {
   console.log("Get positions.");
