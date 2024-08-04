@@ -1,3 +1,5 @@
+import { game } from "./index.js";
+import { isEnPassantMove } from "./lib/helper.js";
 import { initializeBishops } from "./pieces/bishop.js";
 import { initializeKings } from "./pieces/king.js";
 import { initializeKnights } from "./pieces/knight.js";
@@ -10,6 +12,7 @@ export class ChessBoard {
     this.turn = "w";
     this.blackPieces = { alive: {}, dead: {} };
     this.whitePieces = { alive: {}, dead: {} };
+    this.playedMoves = [];
     this.initializePositions();
   }
 
@@ -62,10 +65,34 @@ export class ChessBoard {
     const newRow = newSquare[0];
     const newCol = newSquare[2];
 
+    const moveDetails = {
+      from: { ...currSpuarePiece },
+      to: {
+        row: newRow,
+        col: newCol
+      },
+    }
+
+
     if (newSpuarePiece) {
-      // if new square already contains a piece
+      // capture if new square already contains a piece
       delete oppositeTeamPieces.alive[newSquare];
       oppositeTeamPieces.dead[newSquare] = newSpuarePiece;
+      moveDetails.capture = { ...newSpuarePiece };
+    }
+    else {
+      const lastPlayedMove = game.playedMoves[game.playedMoves.length - 1];
+
+      if (isEnPassantMove(lastPlayedMove, newCol, currSpuarePiece.row)) {
+        // capture if after en passant move
+
+        const enPassantSquare = `${lastPlayedMove.to.row}-${lastPlayedMove.to.col}`;
+        const enPassantPiece = oppositeTeamPieces.alive[enPassantSquare];
+
+        delete oppositeTeamPieces.alive[enPassantSquare];
+        oppositeTeamPieces.dead[enPassantSquare] = enPassantPiece;
+        moveDetails.capture = { ...enPassantPiece };
+      }
     }
 
     currSpuarePiece.row = newRow;
@@ -73,6 +100,9 @@ export class ChessBoard {
 
     delete teamPieces.alive[currSquare];
     teamPieces.alive[newSquare] = currSpuarePiece;
+
+    // Save the move details to the history
+    this.playedMoves.push(moveDetails);
 
     // Change turn
     this.turn = this.turn === "w" ? "b" : "w";

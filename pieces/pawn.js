@@ -1,4 +1,5 @@
 import { game } from '../index.js';
+import { isEnPassantMove } from '../lib/helper.js';
 import { Piece } from './piece.js';
 
 export class Pawn extends Piece {
@@ -57,8 +58,14 @@ export class Pawn extends Piece {
         if (!defaultMove.attack && existingPiece) break;
 
         if (defaultMove.attack) {
-          // attack move and existing piece is of same color.
-          if (!existingPiece || existingPiece[0] == game.turn) break;
+          if (existingPiece) {
+            // attack move and existing piece is of same color.
+            if (existingPiece[0] == game.turn) break;
+          }
+          else {
+            const lastPlayedMove = game.playedMoves[game.playedMoves.length - 1];
+            if (!isEnPassantMove(lastPlayedMove, newCol, this.row)) break;
+          }
         }
 
         moves.push(newSquareKey);
