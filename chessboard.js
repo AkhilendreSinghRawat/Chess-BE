@@ -42,11 +42,36 @@ export class ChessBoard {
     return positions;
   }
 
+  getPieces() {
+    if (this.turn === 'w') {
+      return { teamPieces: this.whitePieces, oppositeTeamPieces: this.blackPieces }
+    }
+
+    return { teamPieces: this.blackPieces, oppositeTeamPieces: this.whitePieces };
+  }
+
   makeMove(currSquare, newSquare) {
     // Alive pieces
-    const pieces = this.turn === 'w' ? this.whitePieces.alive : this.blackPieces.alive;
-    pieces[newSquare]
+    const { teamPieces, oppositeTeamPieces } = this.getPieces();
+    const newSpuarePiece = oppositeTeamPieces.alive[newSquare];
+    const currSpuarePiece = teamPieces.alive[currSquare];
 
+    if (!currSpuarePiece) return console.error('Error: Current square not found');
+
+    const newRow = newSquare[0];
+    const newCol = newSquare[2];
+
+    if (newSpuarePiece) {
+      // if new square already contains a piece
+      delete oppositeTeamPieces.alive[newSquare];
+      oppositeTeamPieces.dead[newSquare] = newSpuarePiece;
+    }
+
+    currSpuarePiece.row = newRow;
+    currSpuarePiece.col = newCol;
+
+    delete teamPieces.alive[currSquare];
+    teamPieces.alive[newSquare] = currSpuarePiece;
 
     // Change turn
     this.turn = this.turn === "w" ? "b" : "w";
