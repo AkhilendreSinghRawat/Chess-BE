@@ -1,5 +1,5 @@
 import { getAvailabeMoves, isEnPassantMove } from "./lib/helper.js";
-import { initializeBishops } from "./pieces/bishop.js";
+import { Bishop } from "./pieces/bishop.js";
 import { initializeKings } from "./pieces/king.js";
 import { initializeKnights } from "./pieces/knight.js";
 import { Pawn } from "./pieces/pawn.js";
@@ -7,21 +7,39 @@ import { initializeQueens } from "./pieces/queen.js";
 import { Rook } from "./pieces/rook.js";
 
 export class ChessBoard {
-  constructor() {
-    this.turn = "w";
-    this.blackPieces = { alive: {}, dead: {} };
-    this.whitePieces = { alive: {}, dead: {} };
-    this.playedMoves = [];
-    this.initializePositions();
+  constructor(state = null) {
+    if (state) {
+      this.turn = state.turn;
+      this.blackPieces = state.blackPieces;
+      this.whitePieces = state.whitePieces;
+      this.playedMoves = state.playedMoves;
+    } else {
+      this.turn = "w";
+      this.blackPieces = { alive: {}, dead: {} };
+      this.whitePieces = { alive: {}, dead: {} };
+      this.playedMoves = [];
+      this.initializePositions();
+    }
   }
 
   initializePositions() {
     Pawn.initialize(this.blackPieces, this.whitePieces);
     Rook.initialize(this.blackPieces, this.whitePieces);
+    Bishop.initialize(this.blackPieces, this.whitePieces);
     initializeKnights.call(this);
-    initializeBishops.call(this);
     initializeQueens.call(this);
     initializeKings.call(this);
+  }
+
+  clone() {
+    const state = {
+      turn: this.turn,
+      blackPieces: JSON.parse(JSON.stringify(this.blackPieces)),
+      whitePieces: JSON.parse(JSON.stringify(this.whitePieces)),
+      playedMoves: JSON.parse(JSON.stringify(this.playedMoves))
+    };
+
+    return new ChessBoard(state);
   }
 
   getPositions() {
