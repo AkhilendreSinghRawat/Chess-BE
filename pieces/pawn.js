@@ -7,7 +7,7 @@ export class Pawn extends Piece {
     super(row, col, color, 'p');
   }
 
-  static initializePawns(blackPieces, whitePieces) {
+  static initialize(blackPieces, whitePieces) {
     for (let i = 0; i < 8; i++) {
       const blackPawn = new Pawn(1, i, 'b');
       const whitePawn = new Pawn(6, i, 'w');
@@ -18,13 +18,7 @@ export class Pawn extends Piece {
     }
   }
 
-  getPawnAvailabeMoves() {
-    const potentalMoves = this.getPotentialPawnMoves();
-
-    return potentalMoves;
-  }
-
-  getPotentialPawnMoves() {
+  getPotentialMoves() {
     const positions = game.getPositions();
 
     const defaultPawnMoves = [

@@ -20,7 +20,7 @@ app.get("/available-moves", (req, res) => {
   console.log("Available moves: ", squareKey);
   if (!squareKey) res.json([]);
 
-  const availableMoves = game.getAvailableMoves(squareKey);
+  const availableMoves = game.getMoves(squareKey);
   console.log(availableMoves);
   res.json(availableMoves);
 });
@@ -32,6 +32,11 @@ app.post("/move", (req, res) => {
 
   game.makeMove(currSquare, newSquare);
   res.json({ message: "Move made successfully" });
+});
+
+app.post("/reset", (req, res) => {
+  game = new ChessBoard();
+  res.json({ message: "Game reset successful" });
 });
 
 app.listen(port, (error) => {

@@ -1,11 +1,10 @@
-import { game } from "./index.js";
-import { isEnPassantMove } from "./lib/helper.js";
+import { getAvailabeMoves, isEnPassantMove } from "./lib/helper.js";
 import { initializeBishops } from "./pieces/bishop.js";
 import { initializeKings } from "./pieces/king.js";
 import { initializeKnights } from "./pieces/knight.js";
 import { Pawn } from "./pieces/pawn.js";
 import { initializeQueens } from "./pieces/queen.js";
-import { initializeRooks } from "./pieces/rook.js";
+import { Rook } from "./pieces/rook.js";
 
 export class ChessBoard {
   constructor() {
@@ -17,8 +16,8 @@ export class ChessBoard {
   }
 
   initializePositions() {
-    Pawn.initializePawns(this.blackPieces, this.whitePieces);
-    initializeRooks.call(this);
+    Pawn.initialize(this.blackPieces, this.whitePieces);
+    Rook.initialize(this.blackPieces, this.whitePieces);
     initializeKnights.call(this);
     initializeBishops.call(this);
     initializeQueens.call(this);
@@ -81,7 +80,7 @@ export class ChessBoard {
       moveDetails.capture = { ...newSpuarePiece };
     }
     else {
-      const lastPlayedMove = game.playedMoves[game.playedMoves.length - 1];
+      const lastPlayedMove = this.playedMoves[this.playedMoves.length - 1];
 
       if (isEnPassantMove(lastPlayedMove, newCol, currSpuarePiece.row)) {
         // capture if after en passant move
@@ -108,7 +107,11 @@ export class ChessBoard {
     this.turn = this.turn === "w" ? "b" : "w";
   }
 
-  getAvailableMoves(key) {
+  isCheck() {
+    return false;
+  }
+
+  getMoves(key) {
     const { teamPieces } = this.getPieces();
     const pieceData = teamPieces.alive[key];
 
@@ -119,12 +122,6 @@ export class ChessBoard {
 
     if (pieceData.color !== this.turn) return [];
 
-    switch (pieceData.type) {
-      case "p":
-        return pieceData.getPawnAvailabeMoves();
-
-      default:
-        return [];
-    }
+    return getAvailabeMoves(pieceData.getPotentialMoves(), pieceData.row, pieceData.col);
   }
 }
