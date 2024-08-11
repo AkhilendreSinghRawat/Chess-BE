@@ -122,6 +122,8 @@ export class ChessBoard {
 
     if (pieceData.color !== this.turn) return [];
 
-    return getAvailabeMoves(pieceData.getPotentialMoves(), pieceData.row, pieceData.col);
+    const potentialMoves = pieceData.getPotentialMoves();
+
+    return getAvailabeMoves(potentialMoves, pieceData.row, pieceData.col);
   }
 }
