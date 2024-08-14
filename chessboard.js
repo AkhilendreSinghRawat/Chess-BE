@@ -1,6 +1,6 @@
 import { getAvailabeMoves, isEnPassantMove } from "./lib/helper.js";
 import { Bishop } from "./pieces/bishop.js";
-import { initializeKings } from "./pieces/king.js";
+import { King } from "./pieces/king.js";
 import { initializeKnights } from "./pieces/knight.js";
 import { Pawn } from "./pieces/pawn.js";
 import { Queen } from "./pieces/queen.js";
@@ -27,8 +27,8 @@ export class ChessBoard {
     Rook.initialize(this.blackPieces, this.whitePieces);
     Bishop.initialize(this.blackPieces, this.whitePieces);
     Queen.initialize(this.blackPieces, this.whitePieces);
+    King.initialize(this.blackPieces, this.whitePieces);
     initializeKnights.call(this);
-    initializeKings.call(this);
   }
 
   clone() {
