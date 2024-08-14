@@ -10,7 +10,7 @@ export class Queen extends Piece {
         const blackQueen = new Queen(0, 3, "b");
         const whiteQueen = new Queen(7, 3, "w");
         blackPieces.alive['0-3'] = blackQueen;
-        whitePieces.alive['7-4'] = whiteQueen;
+        whitePieces.alive['7-3'] = whiteQueen;
     }
 
     getPotentialMoves() {
