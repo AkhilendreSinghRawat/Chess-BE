@@ -1,10 +1,4 @@
-import { getAvailabeMoves, isEnPassantMove } from "./lib/helper.js";
-import { Bishop } from "./pieces/bishop.js";
-import { King } from "./pieces/king.js";
-import { initializeKnights } from "./pieces/knight.js";
-import { Pawn } from "./pieces/pawn.js";
-import { Queen } from "./pieces/queen.js";
-import { Rook } from "./pieces/rook.js";
+import { getAvailabeMoves, initializePositions, isEnPassantMove } from "./lib/helper.js";
 
 export class ChessBoard {
   constructor(state = null) {
@@ -18,18 +12,10 @@ export class ChessBoard {
       this.blackPieces = { alive: {}, dead: {} };
       this.whitePieces = { alive: {}, dead: {} };
       this.playedMoves = [];
-      this.initializePositions();
+      initializePositions(this.blackPieces, this.whitePieces);
     }
   }
 
-  initializePositions() {
-    Pawn.initialize(this.blackPieces, this.whitePieces);
-    Rook.initialize(this.blackPieces, this.whitePieces);
-    Bishop.initialize(this.blackPieces, this.whitePieces);
-    Queen.initialize(this.blackPieces, this.whitePieces);
-    King.initialize(this.blackPieces, this.whitePieces);
-    initializeKnights.call(this);
-  }
 
   clone() {
     const state = {
