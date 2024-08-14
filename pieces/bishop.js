@@ -1,4 +1,4 @@
-import { game } from "../index.js";
+import { getPotentialDiagonalMoves } from "../lib/helper.js";
 import { Piece } from "./piece.js";
 
 export class Bishop extends Piece {
@@ -18,59 +18,6 @@ export class Bishop extends Piece {
     }
 
     getPotentialMoves() {
-        const positions = game.getPositions();
-        const moves = [];
-
-        const validateMove = (row, col) => {
-            // check if the new sqaure already have a piece
-            const newSquareKey = row + "-" + col;
-            const existingPiece = positions[newSquareKey];
-
-            if (existingPiece) {
-                // existing piece is of same color.
-                if (existingPiece[0] == game.turn) return false;
-
-                // existing piece is of opponent
-                moves.push(newSquareKey);
-                return false;
-            }
-
-            moves.push(newSquareKey);
-            return true;
-        }
-
-        // 1st diagonal increase row and column
-        for (let i = 1; i <= 7; i++) {
-            const newRow = Number(this.row) + i;
-            const newCol = Number(this.col) + i;
-            if (newRow < 0 || newRow > 7 || newCol < 0 || newCol > 7) break;
-            if (!validateMove(newRow, newCol)) break;
-        }
-
-        // 2nd diagonal decrease row and column
-        for (let i = 1; i <= 7; i++) {
-            const newRow = Number(this.row) - i;
-            const newCol = Number(this.col) - i;
-            if (newRow < 0 || newRow > 7 || newCol < 0 || newCol > 7) break;
-            if (!validateMove(newRow, newCol)) break;
-        }
-
-        // 3rd diagonal decrease row and increase column
-        for (let i = 1; i <= 7; i++) {
-            const newRow = Number(this.row) - i;
-            const newCol = Number(this.col) + i;
-            if (newRow < 0 || newRow > 7 || newCol < 0 || newCol > 7) break;
-            if (!validateMove(newRow, newCol)) break;
-        }
-
-        // 4th diagonal increase row and decrease column
-        for (let i = 1; i <= 7; i++) {
-            const newRow = Number(this.row) + i;
-            const newCol = Number(this.col) - i;
-            if (newRow < 0 || newRow > 7 || newCol < 0 || newCol > 7) break;
-            if (!validateMove(newRow, newCol)) break;
-        }
-
-        return moves;
+        return getPotentialDiagonalMoves(this.row, this.col);
     }
 }
