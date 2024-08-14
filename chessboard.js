@@ -3,7 +3,7 @@ import { Bishop } from "./pieces/bishop.js";
 import { initializeKings } from "./pieces/king.js";
 import { initializeKnights } from "./pieces/knight.js";
 import { Pawn } from "./pieces/pawn.js";
-import { initializeQueens } from "./pieces/queen.js";
+import { Queen } from "./pieces/queen.js";
 import { Rook } from "./pieces/rook.js";
 
 export class ChessBoard {
@@ -26,8 +26,8 @@ export class ChessBoard {
     Pawn.initialize(this.blackPieces, this.whitePieces);
     Rook.initialize(this.blackPieces, this.whitePieces);
     Bishop.initialize(this.blackPieces, this.whitePieces);
+    Queen.initialize(this.blackPieces, this.whitePieces);
     initializeKnights.call(this);
-    initializeQueens.call(this);
     initializeKings.call(this);
   }
 
