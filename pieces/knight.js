@@ -1,3 +1,4 @@
+import { getPotentialKnightMoves } from "../lib/helper.js";
 import { Piece } from "./piece.js";
 
 export class Knight extends Piece {
@@ -17,7 +18,7 @@ export class Knight extends Piece {
     }
 
     getPotentialMoves() {
-        return [];
+        return getPotentialKnightMoves(this.row, this.col);
     }
 }
 

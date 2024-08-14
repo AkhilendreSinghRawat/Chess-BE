@@ -1,4 +1,4 @@
-import { getPotentialDiagonalMoves, getPotentialStraightLineMoves } from "../lib/helper.js";
+import { getPotentialKingMoves } from "../lib/helper.js";
 import { Piece } from "./piece.js";
 
 export class King extends Piece {
@@ -14,10 +14,7 @@ export class King extends Piece {
     }
 
     getPotentialMoves() {
-        const straightLineMoves = getPotentialStraightLineMoves(this.row, this.col, true);
-        const diagonalMoves = getPotentialDiagonalMoves(this.row, this.col, true);
-
-        return [...straightLineMoves, ...diagonalMoves]
+        return getPotentialKingMoves(this.row, this.col);
     }
 }
 
