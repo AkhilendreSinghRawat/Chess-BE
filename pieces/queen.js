@@ -13,11 +13,13 @@ export class Queen extends Piece {
         whitePieces.alive['7-3'] = whiteQueen;
     }
 
-    getPotentialMoves() {
-        const straightLineMoves = getPotentialStraightLineMoves(this.row, this.col);
-        const diagonalMoves = getPotentialDiagonalMoves(this.row, this.col);
+    getPotentialMoves(game) {
+        const { moves: straightLineMoves, isChecked: straightLineIsChecked } = getPotentialStraightLineMoves(game, this.row, this.col);
+        const { moves: diagonalMoves, isChecked: diagonalIsChecked } = getPotentialDiagonalMoves(game, this.row, this.col);
 
-        return [...straightLineMoves, ...diagonalMoves]
+        return {
+            moves: [...straightLineMoves, ...diagonalMoves], isChecked: straightLineIsChecked || diagonalIsChecked
+        }
     }
 }
 

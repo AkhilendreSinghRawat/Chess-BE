@@ -17,7 +17,7 @@ export class Bishop extends Piece {
         }
     }
 
-    getPotentialMoves() {
-        return getPotentialDiagonalMoves(this.row, this.col);
+    getPotentialMoves(game) {
+        return getPotentialDiagonalMoves(game, this.row, this.col);
     }
 }

@@ -17,8 +17,8 @@ export class Knight extends Piece {
         }
     }
 
-    getPotentialMoves() {
-        return getPotentialKnightMoves(this.row, this.col);
+    getPotentialMoves(game) {
+        return getPotentialKnightMoves(game, this.row, this.col);
     }
 }
 

@@ -13,8 +13,8 @@ export class King extends Piece {
         whitePieces.alive['7-4'] = whiteKing;
     }
 
-    getPotentialMoves() {
-        return getPotentialKingMoves(this.row, this.col);
+    getPotentialMoves(game) {
+        return getPotentialKingMoves(game, this.row, this.col);
     }
 }
 

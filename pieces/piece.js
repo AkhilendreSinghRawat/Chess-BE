@@ -14,4 +14,8 @@ export class Piece {
             type: this.type,
         }
     }
+
+    clone() {
+        return new this.constructor(this.row, this.col, this.color);
+    }
 }

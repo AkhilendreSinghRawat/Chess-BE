@@ -17,7 +17,7 @@ export class Rook extends Piece {
         }
     }
 
-    getPotentialMoves() {
-        return getPotentialStraightLineMoves(this.row, this.col);
+    getPotentialMoves(game) {
+        return getPotentialStraightLineMoves(game, this.row, this.col);
     }
 }

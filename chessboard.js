@@ -18,10 +18,27 @@ export class ChessBoard {
 
 
   clone() {
+    const clonePieces = (pieces) => {
+      const cloned = {
+        alive: {},
+        dead: {}
+      };
+
+      for (const [key, piece] of Object.entries(pieces.alive)) {
+        cloned.alive[key] = piece.clone();
+      }
+
+      for (const [key, piece] of Object.entries(pieces.dead)) {
+        cloned.dead[key] = piece.clone();
+      }
+
+      return cloned;
+    };
+
     const state = {
       turn: this.turn,
-      blackPieces: JSON.parse(JSON.stringify(this.blackPieces)),
-      whitePieces: JSON.parse(JSON.stringify(this.whitePieces)),
+      blackPieces: clonePieces(this.blackPieces),
+      whitePieces: clonePieces(this.whitePieces),
       playedMoves: JSON.parse(JSON.stringify(this.playedMoves))
     };
 
@@ -112,6 +129,13 @@ export class ChessBoard {
   }
 
   isCheck() {
+    const { teamPieces } = this.getPieces();
+
+    for (const pieceData of Object.values(teamPieces.alive)) {
+      const { isChecked } = pieceData.getPotentialMoves(this);
+      if (isChecked) return true;
+    }
+
     return false;
   }
 
@@ -126,8 +150,8 @@ export class ChessBoard {
 
     if (pieceData.color !== this.turn) return [];
 
-    const potentialMoves = pieceData.getPotentialMoves();
+    const { moves: potentialMoves } = pieceData.getPotentialMoves(this);
 
-    return getAvailabeMoves(potentialMoves, pieceData.row, pieceData.col);
+    return getAvailabeMoves(this, potentialMoves, pieceData.row, pieceData.col);
   }
 }
