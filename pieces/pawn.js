@@ -18,7 +18,7 @@ export class Pawn extends Piece {
   }
 
   getPotentialMoves(game) {
-    const positions = game.getPositions();
+    const { positions } = game.getPositions();
 
     const defaultPawnMoves = [
       [

@@ -9,6 +9,8 @@ export class ChessBoard {
       this.playedMoves = state.playedMoves;
     } else {
       this.turn = "w";
+      this.isCheck = false;
+      this.isMate = false;
       this.blackPieces = { alive: {}, dead: {} };
       this.whitePieces = { alive: {}, dead: {} };
       this.playedMoves = [];
@@ -62,7 +64,7 @@ export class ChessBoard {
       positions[key] = value;
     }
 
-    return positions;
+    return { positions, isCheck: this.isCheck, isMate: this.isMate };
   }
 
   getPieces() {
@@ -73,7 +75,7 @@ export class ChessBoard {
     return { teamPieces: this.blackPieces, oppositeTeamPieces: this.whitePieces };
   }
 
-  makeMove(currSquare, newSquare) {
+  makeMove(currSquare, newSquare, isTempMove) {
     const { teamPieces, oppositeTeamPieces } = this.getPieces();
 
     // Alive pieces
@@ -124,11 +126,34 @@ export class ChessBoard {
     // Save the move details to the history
     this.playedMoves.push(moveDetails);
 
+    if (!isTempMove) {
+      this.isCheck = this.getIsCheck();
+    }
+
     // Change turn
     this.turn = this.turn === "w" ? "b" : "w";
+
+    if (this.isCheck) {
+      this.isCheck = this.turn + '-k';
+      this.isMate = this.getIsMate();
+    }
   }
 
-  isCheck() {
+  getIsMate() {
+    const { teamPieces } = this.getPieces();
+
+    for (const pieceData of Object.values(teamPieces.alive)) {
+      const { moves: potentialMoves } = pieceData.getPotentialMoves(this);
+
+      const moves = getAvailabeMoves(this, potentialMoves, pieceData.row, pieceData.col);
+
+      if (moves.length) return false;
+    }
+
+    return true;
+  }
+
+  getIsCheck() {
     const { teamPieces } = this.getPieces();
 
     for (const pieceData of Object.values(teamPieces.alive)) {
