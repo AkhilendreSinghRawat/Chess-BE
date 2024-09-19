@@ -26,11 +26,11 @@ app.get("/available-moves", (req, res) => {
 });
 
 app.post("/move", (req, res) => {
-  const { currSquare, newSquare } = req.body;
-  console.log("Move: ", { currSquare, newSquare });
+  const { currSquare, newSquare, promotionPiece } = req.body;
+  console.log("Move: ", { currSquare, newSquare, promotionPiece });
   if (!currSquare || !newSquare) return res.json({ message: "Invalid square" });
 
-  game.makeMove(currSquare, newSquare);
+  game.makeMove({ currSquare, newSquare, promotionPiece });
   res.json({ message: "Move made successfully" });
 });
 

@@ -1,4 +1,8 @@
-import { getAvailabeMoves, initializePositions, isEnPassantMove } from "./lib/helper.js";
+import { checkValidPromotionPiece, getAvailabeMoves, initializePositions, isEnPassantMove } from "./lib/helper.js";
+import { Bishop } from "./pieces/bishop.js";
+import { Knight } from "./pieces/knight.js";
+import { Queen } from "./pieces/queen.js";
+import { Rook } from "./pieces/rook.js";
 
 export class ChessBoard {
   constructor(state = null) {
@@ -75,14 +79,19 @@ export class ChessBoard {
     return { teamPieces: this.blackPieces, oppositeTeamPieces: this.whitePieces };
   }
 
-  makeMove(currSquare, newSquare, isTempMove) {
+  makeMove({ currSquare, newSquare, isTempMove, promotionPiece }) {
     const { teamPieces, oppositeTeamPieces } = this.getPieces();
 
     // Alive pieces
     const newSpuarePiece = oppositeTeamPieces.alive[newSquare];
-    const currSpuarePiece = teamPieces.alive[currSquare];
+    let currSpuarePiece = teamPieces.alive[currSquare];
 
     if (!currSpuarePiece) return console.error('Error: Current square not found');
+
+    if (promotionPiece) {
+      const isValidPromotionPiece = checkValidPromotionPiece(newSquare, currSpuarePiece, promotionPiece)
+      if (!isValidPromotionPiece) return;
+    }
 
     const newRow = newSquare[0];
     const newCol = newSquare[2];
@@ -117,8 +126,28 @@ export class ChessBoard {
       }
     }
 
-    currSpuarePiece.row = newRow;
-    currSpuarePiece.col = newCol;
+    switch (promotionPiece) {
+      case 'q':
+        currSpuarePiece = new Queen(newRow, newCol, this.turn);
+        break;
+
+      case 'r':
+        currSpuarePiece = new Rook(newRow, newCol, this.turn);
+        break;
+
+      case 'b':
+        currSpuarePiece = new Bishop(newRow, newCol, this.turn);
+        break;
+
+      case 'k':
+        currSpuarePiece = new Knight(newRow, newCol, this.turn);
+        break;
+
+      default:
+        currSpuarePiece.row = newRow;
+        currSpuarePiece.col = newCol;
+    }
+
 
     delete teamPieces.alive[currSquare];
     teamPieces.alive[newSquare] = currSpuarePiece;
