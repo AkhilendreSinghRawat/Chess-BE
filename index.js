@@ -5,7 +5,13 @@ import { ChessBoard } from "./chessboard.js";
 const app = express();
 const port = 8080;
 
-app.use(cors());
+const corsOptions = {
+  origin: "*",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"],
+};
+
+app.use(cors(corsOptions));
 app.use(json());
 
 let game = new ChessBoard();
