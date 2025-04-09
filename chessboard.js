@@ -1,8 +1,8 @@
-import { checkValidPromotionPiece, getAvailabeMoves, initializePositions, isEnPassantMove } from "./lib/helper.js";
-import { Bishop } from "./pieces/bishop.js";
-import { Knight } from "./pieces/knight.js";
-import { Queen } from "./pieces/queen.js";
-import { Rook } from "./pieces/rook.js";
+import { checkValidPromotionPiece, getAvailabeMoves, initializePositions, isEnPassantMove } from './lib/helper.js';
+import { Bishop } from './pieces/bishop.js';
+import { Knight } from './pieces/knight.js';
+import { Queen } from './pieces/queen.js';
+import { Rook } from './pieces/rook.js';
 
 export class ChessBoard {
   constructor(state = null) {
@@ -12,22 +12,22 @@ export class ChessBoard {
       this.whitePieces = state.whitePieces;
       this.playedMoves = state.playedMoves;
     } else {
-      this.turn = "w";
+      this.turn = 'w';
       this.isCheck = false;
       this.isMate = false;
       this.blackPieces = { alive: {}, dead: {} };
       this.whitePieces = { alive: {}, dead: {} };
       this.playedMoves = [];
+      this.castlingRights = { b: { left: true, right: true }, w: { left: true, right: true } };
       initializePositions(this.blackPieces, this.whitePieces);
     }
   }
 
-
   clone() {
-    const clonePieces = (pieces) => {
+    const clonePieces = pieces => {
       const cloned = {
         alive: {},
-        dead: {}
+        dead: {},
       };
 
       for (const [key, piece] of Object.entries(pieces.alive)) {
@@ -45,7 +45,7 @@ export class ChessBoard {
       turn: this.turn,
       blackPieces: clonePieces(this.blackPieces),
       whitePieces: clonePieces(this.whitePieces),
-      playedMoves: JSON.parse(JSON.stringify(this.playedMoves))
+      playedMoves: JSON.parse(JSON.stringify(this.playedMoves)),
     };
 
     return new ChessBoard(state);
@@ -73,7 +73,7 @@ export class ChessBoard {
 
   getPieces() {
     if (this.turn === 'w') {
-      return { teamPieces: this.whitePieces, oppositeTeamPieces: this.blackPieces }
+      return { teamPieces: this.whitePieces, oppositeTeamPieces: this.blackPieces };
     }
 
     return { teamPieces: this.blackPieces, oppositeTeamPieces: this.whitePieces };
@@ -85,11 +85,14 @@ export class ChessBoard {
     // Alive pieces
     const newSpuarePiece = oppositeTeamPieces.alive[newSquare];
     let currSpuarePiece = teamPieces.alive[currSquare];
-
+    console.log('🚀 ~ ChessBoard ~ makeMove ~ currSpuarePiece:', currSpuarePiece.type, currSquare, newSquare);
     if (!currSpuarePiece) return console.error('Error: Current square not found');
 
+    const isCastlingMove = currSpuarePiece.type === 'k' && Math.abs(newSquare[2] - currSquare[2]) === 2;
+    console.log('🚀 ~ ChessBoard ~ makeMove ~ isCastlingMove:', isCastlingMove);
+
     if (promotionPiece) {
-      const isValidPromotionPiece = checkValidPromotionPiece(newSquare, currSpuarePiece, promotionPiece)
+      const isValidPromotionPiece = checkValidPromotionPiece(newSquare, currSpuarePiece, promotionPiece);
       if (!isValidPromotionPiece) return;
     }
 
@@ -100,18 +103,17 @@ export class ChessBoard {
       from: { ...currSpuarePiece },
       to: {
         row: newRow,
-        col: newCol
+        col: newCol,
       },
-    }
-
+      isCastlingMove,
+    };
 
     if (newSpuarePiece) {
       // capture if new square already contains a piece
       delete oppositeTeamPieces.alive[newSquare];
       oppositeTeamPieces.dead[newSquare] = newSpuarePiece;
       moveDetails.capture = { ...newSpuarePiece };
-    }
-    else {
+    } else {
       const lastPlayedMove = this.playedMoves[this.playedMoves.length - 1];
 
       if (isEnPassantMove(lastPlayedMove, newCol, currSpuarePiece.row)) {
@@ -148,19 +150,39 @@ export class ChessBoard {
         currSpuarePiece.col = newCol;
     }
 
-
     delete teamPieces.alive[currSquare];
     teamPieces.alive[newSquare] = currSpuarePiece;
+
+    if (isCastlingMove) {
+      const currRookSquare = currSquare[0] + '-' + (newSquare[2] < currSquare[2] ? 0 : 7);
+      const newRookSquareCol = newSquare[2] < currSquare[2] ? 3 : 5;
+      const newRookSquare = currSquare[0] + '-' + newRookSquareCol;
+      const rookSpuarePiece = teamPieces.alive[currRookSquare];
+      rookSpuarePiece.col = newRookSquareCol;
+      delete teamPieces.alive[currRookSquare];
+      teamPieces.alive[newRookSquare] = rookSpuarePiece;
+    }
 
     // Save the move details to the history
     this.playedMoves.push(moveDetails);
 
     if (!isTempMove) {
+      if (currSpuarePiece.type === 'k') {
+        this.castlingRights[this.turn].left = false;
+        this.castlingRights[this.turn].right = false;
+      } else if (currSpuarePiece.type === 'r') {
+        if (currSquare[2] == 0) {
+          this.castlingRights[this.turn].left = false;
+        } else {
+          this.castlingRights[this.turn].right = false;
+        }
+      }
+
       this.isCheck = this.getIsCheck();
     }
 
     // Change turn
-    this.turn = this.turn === "w" ? "b" : "w";
+    this.turn = this.turn === 'w' ? 'b' : 'w';
 
     if (this.isCheck) {
       this.isCheck = this.turn + '-k';
@@ -172,7 +194,7 @@ export class ChessBoard {
     const { teamPieces } = this.getPieces();
 
     for (const pieceData of Object.values(teamPieces.alive)) {
-      const { moves: potentialMoves } = pieceData.getPotentialMoves(this);
+      const { moves: potentialMoves } = pieceData.getPotentialMoves(this, true);
 
       const moves = getAvailabeMoves(this, potentialMoves, pieceData.row, pieceData.col);
 
@@ -186,7 +208,7 @@ export class ChessBoard {
     const { teamPieces } = this.getPieces();
 
     for (const pieceData of Object.values(teamPieces.alive)) {
-      const { isChecked } = pieceData.getPotentialMoves(this);
+      const { isChecked } = pieceData.getPotentialMoves(this, true);
       if (isChecked) return true;
     }
 
